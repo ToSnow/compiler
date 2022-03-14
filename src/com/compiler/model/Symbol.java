@@ -16,6 +16,11 @@ public class Symbol {
         this.isEnd = isEnd;
     }
 
+    public Symbol(String content) {
+        this.content = content;
+        this.isEnd = false;
+    }
+
     public static String getEPSILON() {
         return EPSILON;
     }
