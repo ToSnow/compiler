@@ -12,6 +12,8 @@ public class FirstSet {
     private final Symbol start;
     //其对应的first集
     private final Set<Symbol> set = new HashSet<>();
+    //是否包含ε
+    private boolean hasEpsilon;
 
     /**
      * 构造函数，用于创建一个first集
@@ -42,6 +44,14 @@ public class FirstSet {
 
     public Set<Symbol> getSet() {
         return set;
+    }
+
+    public boolean isHasEpsilon() {
+        return hasEpsilon;
+    }
+
+    public void setHasEpsilon(boolean hasEpsilon) {
+        this.hasEpsilon = hasEpsilon;
     }
 
     @Override

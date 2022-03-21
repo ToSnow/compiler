@@ -9,10 +9,15 @@ import java.util.List;
 public class Production {
     private final Symbol left;          //产生式左部
     private final List<Symbol> right;   //产生式右部
+    private final boolean isEpsilon;    //是否是空
 
     public Production(Symbol left, List<Symbol> right) {
         this.left = left;
         this.right = right;
+        if(right.size() == 1 && right.get(0).getContent().equals(Symbol.EPSILON))
+            isEpsilon = true;
+        else
+            isEpsilon = false;
     }
 
     /**
@@ -50,6 +55,10 @@ public class Production {
         }
         string.append("}");
         return string.toString();
+    }
+
+    public boolean isEpsilon() {
+        return isEpsilon;
     }
 
     public static void main(String args[]){
