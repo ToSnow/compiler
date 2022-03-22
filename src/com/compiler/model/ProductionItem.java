@@ -1,5 +1,6 @@
 package com.compiler.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,6 +71,20 @@ public class ProductionItem {
             throw new RuntimeException("项目的分隔符已在项目末尾，无法创建");
         }
         return create(productionItem.production,productionItem.expect,productionItem.delimiterPos + 1);
+    }
+
+    /**
+     * 获取分隔符往后的第二个元素及展望符，用于闭包中的获取first集
+     * @return 对产生式A->α•Bβ,a，获取FIRST(βa)中的βa
+     * */
+    public List<Symbol> getFirstSymbol(){
+        List<Symbol> result = new ArrayList<>();
+        List<Symbol> rightSymbols = production.getRight();
+        for(int i = delimiterPos + 1; i < rightSymbols.size(); ++i){
+            result.add(rightSymbols.get(i));
+        }
+        result.add(expect);
+        return result;
     }
 
     public static String getDELIMITER() {
