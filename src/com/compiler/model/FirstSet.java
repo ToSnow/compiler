@@ -9,7 +9,7 @@ import java.util.Set;
  * */
 public class FirstSet {
     //非终结符
-    private final Symbol start;
+    private final List<Symbol> start;
     //其对应的first集
     private final Set<Symbol> set = new HashSet<>();
     //是否包含ε
@@ -18,7 +18,7 @@ public class FirstSet {
     /**
      * 构造函数，用于创建一个first集
      * */
-    public FirstSet(Symbol start){
+    public FirstSet(List<Symbol> start){
         this.start = start;
     }
 
@@ -38,7 +38,7 @@ public class FirstSet {
         this.set.addAll(set);
     }
 
-    public Symbol getStart() {
+    public List<Symbol> getStart() {
         return start;
     }
 

@@ -103,7 +103,7 @@ public class Grammar {
         if(firstSetMap.containsKey(VNSymbol))
             return firstSetMap.get(VNSymbol);
         //创建一个First集
-        FirstSet firstSet = new FirstSet(VNSymbol);
+        FirstSet firstSet = new FirstSet(Collections.singletonList(VNSymbol));
         //获取该非终结符对应的产生式
         List<Production> productionList = productionMap.get(VNSymbol);
         List<Production> badProductions = new ArrayList<>();
@@ -173,6 +173,53 @@ public class Grammar {
             }
         }
         firstSetMap.put(VNSymbol,firstSet);
+        return firstSet;
+    }
+
+    /**
+     * 获取所有非终结符对应的First集
+     * @return 以非终结符为键，值为该非终结符的 First集
+     * */
+    public Map<Symbol,FirstSet> getFirstSetMap(){
+        if(firstSetMap != null)
+            //求过了就不用再求一遍
+            return firstSetMap;
+        firstSetMap = new HashMap<>();
+        productionMap.keySet().forEach(
+                this::getFirstSet
+        );
+        return firstSetMap;
+    }
+
+    /**
+     * 获取文法符号串对应的First集
+     * @param symbols 文法符号串，如BaC
+     * @return        该文法符号串的First集合
+     * */
+    public FirstSet getFirstSetBySymbols(List<Symbol> symbols){
+        //求解所有非终结符对应的First集
+        Map<Symbol,FirstSet> firstSetMap = getFirstSetMap();
+        //FIXME
+        FirstSet firstSet = new FirstSet(symbols);
+        boolean isAllEpsilon = true;    //产生式中的所有元素是都包含空
+        for(Symbol symbol : symbols){
+            //终结符则直接得出结果
+            if(symbol.isVt()){
+                firstSet.add(symbol);
+                isAllEpsilon = false;
+                break;
+            }
+            //非终结符则查找map
+            FirstSet current = firstSetMap.get(symbol);
+            firstSet.add(current.getSet());
+            //如果当前非终结的First集包含空串，则需要遍历下一个，否则直接得出结果
+            if(!current.isHasEpsilon()){
+                isAllEpsilon = false;
+                break;
+            }
+        }
+        if(isAllEpsilon)
+            firstSet.setHasEpsilon(true);
         return firstSet;
     }
 
