@@ -99,4 +99,50 @@ public class LR1Utils {
         Map<InnerK, InnerV> innerMap = outerMap.computeIfAbsent(outerK, k -> new HashMap<>());
         return innerMap.put(innerK, innerV);
     }
+
+    /**
+     * 生成当前文法的项目集集合
+     * @param grammar 文法
+     * @return        项目集集合
+     * */
+    public static List<ProductionItemSet> generateProductionItemSets(Grammar grammar){
+        Production startProduction = grammar.getProductionMap().get(grammar.getStart()).get(0);
+        //创建增广文法对应的项目
+        ProductionItem startProductionItem = ProductionItem.create(startProduction,Symbol.END);
+        //封装为Set
+        Set<ProductionItem> tmpSet = new HashSet<>();
+        tmpSet.add(startProductionItem);
+        //创建对应的项目集
+        ProductionItemSet startProductionItemSet = ProductionItemSet.create(closure(tmpSet, grammar));
+        List<ProductionItemSet> resultItemSets = new ArrayList<>();
+        resultItemSets.add(startProductionItemSet);
+        //使用栈来进行项目集的求闭包操作
+        Stack<ProductionItemSet> stack = new Stack<>();
+        stack.push(startProductionItemSet);
+        while (!stack.isEmpty()){
+            ProductionItemSet currentItemSet = stack.pop();
+            //对项目集中的每一个文法项目，求其可能的后继文法符号
+            List<Symbol> nextSymbolList = new ArrayList<>();
+            for(ProductionItem productionItem : currentItemSet.getProductionItemSet()){
+                int delimiterPos = productionItem.getDelimiterPos();
+                int productionLength = productionItem.getProduction().getRight().size();
+                if(delimiterPos < productionLength){
+                    //只有分隔符不在最后时才有后继的文法符号
+                    //获取分隔符之后的符号
+                    nextSymbolList.add(productionItem.getProduction().getRight().get(delimiterPos));
+                }
+            }
+            //对于每一个可能的后继符号，用GOTO函数求其后继项目集
+            for(Symbol symbol : nextSymbolList){
+                ProductionItemSet nextItemSet = Goto(currentItemSet,symbol,grammar);
+                //如果得到的后继项目集在结果集中没有出现，则加入到结果集
+                if(nextItemSet != null && !resultItemSets.contains(nextItemSet)){
+                    resultItemSets.add(nextItemSet);
+                    //将其加入到栈中
+                    stack.push(nextItemSet);
+                }
+            }
+        }
+        return resultItemSets;
+    }
 }
