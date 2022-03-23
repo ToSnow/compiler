@@ -56,9 +56,19 @@ public class FirstSet {
 
     @Override
     public String toString() {
-        return "FirstSet{" +
-                "start=" + start +
-                ", set=" + set +
-                '}';
+        //First(A)=a|b
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("First(");
+        for(Symbol symbol : start){
+            stringBuilder.append(symbol.getContent());
+        }
+        stringBuilder.append(")=");
+        for(Symbol symbol : set){
+            stringBuilder.append(symbol.getContent()).append("|");
+        }
+        if(isHasEpsilon())
+            stringBuilder.append(Symbol.EPSILON);
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        return stringBuilder.toString();
     }
 }

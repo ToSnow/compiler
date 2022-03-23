@@ -8,7 +8,7 @@ import java.util.*;
  * */
 public class Grammar {
     private final Symbol start;         //文法的开始符号
-    private Set<Symbol> VtSet;          //文法中的终结符
+    private final Set<Symbol> VtSet;          //文法中的终结符
     private final Set<Symbol> VnSet;    //文法中的非终结符
     private Map<Symbol,FirstSet> firstSetMap;   //文法中所有非终结符对应的First集
     private Map<Symbol,FollowSet> followSetMap; //文法中所有非终结符对应的Follow集
@@ -26,6 +26,7 @@ public class Grammar {
         this.productionMap = productionMap;
         //非终结符集合一定是产生式的键值
         this.VnSet = productionMap.keySet();
+        this.VtSet = new HashSet<>();
         //终结符集合需要遍历获得
         for(Map.Entry<Symbol,List<Production>> entry : productionMap.entrySet()){
             for(Production production : entry.getValue()){
@@ -241,5 +242,38 @@ public class Grammar {
 
     public LinkedHashMap<Symbol, List<Production>> getProductionMap() {
         return productionMap;
+    }
+
+    @Override
+    public String toString() {
+        //生成Grammar头部
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Grammar{\n");
+        //输出所有产生式
+        stringBuilder.append("\tProductions{\n");
+        for(Map.Entry<Symbol,List<Production>> entry : productionMap.entrySet()){
+            //先读入产生式左部
+            stringBuilder.append("\t\t").append(entry.getKey().getContent()).append("->");
+            for(Production production : entry.getValue()){
+                for(Symbol symbol : production.getRight()){
+                    stringBuilder.append(symbol.getContent());
+                }
+                //插入产生式之间的分隔符
+                stringBuilder.append("|");
+            }
+            //去除多余的分隔符
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            //插入换行符
+            stringBuilder.append("\n");
+        }
+        stringBuilder.append("\t}\n");
+        //输出所有非终结符的First集
+        stringBuilder.append("\tFirstSet{\n");
+        for(Map.Entry<Symbol,FirstSet> entry : firstSetMap.entrySet()){
+            stringBuilder.append("\t\t").append(entry.getValue().toString()).append("\n");
+        }
+        stringBuilder.append("\t}\n");
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 }

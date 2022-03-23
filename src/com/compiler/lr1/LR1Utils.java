@@ -145,4 +145,29 @@ public class LR1Utils {
         }
         return resultItemSets;
     }
+
+    public static void main(String[] args){
+        //创建文法符号
+        Symbol start = new Symbol("S'");
+        //创建语法
+        /*
+        * S'-> S
+        * S -> aAd
+        * S -> bAc
+        * S -> aec
+        * S -> bed
+        * A -> e
+        * */
+        Grammar grammar = Grammar.creat(start,
+                Production.create(start,"S"),
+                Production.create("S","aAd"),
+                Production.create("S","bAc"),
+                Production.create("S","aec"),
+                Production.create("S","bed"),
+                Production.create("A","e")
+        );
+        LinkedHashMap<Symbol,List<Production>> map = grammar.getProductionMap();
+        grammar.getFirstSetMap();
+        System.out.println(grammar);
+    }
 }
