@@ -13,7 +13,7 @@ public class ProductionItemSet {
     private static int total = 0;                               //项目集总数
     private final Set<ProductionItem> productionItemSet;        //项目集
     private final String content;                               //项目集转换为字符串的内容
-    private final int index;                                 //当前项目集的标号
+    private final int index;                                    //当前项目集的标号
 
     public ProductionItemSet(Set<ProductionItem> productionItemSet, String content, int index) {
         this.productionItemSet = productionItemSet;
@@ -72,5 +72,18 @@ public class ProductionItemSet {
         //根据content判断是否相等
         ProductionItemSet productionItemSet = (ProductionItemSet) obj;
         return Objects.equals(content,productionItemSet.content);
+    }
+
+    @Override
+    public String toString() {
+        //ProductionItemSet{I0:S'->S,#}
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("ProductionItemSet{I").append(index).append(":");
+        for(ProductionItem productionItem : productionItemSet){
+            stringBuilder.append(productionItem.getContent()).append("\t");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        stringBuilder.append("}");
+        return stringBuilder.toString();
     }
 }

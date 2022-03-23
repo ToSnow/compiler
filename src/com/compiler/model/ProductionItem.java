@@ -7,7 +7,7 @@ import java.util.List;
  * 文法的项目
  * 如：A->a•b,a/#
  * */
-public class ProductionItem {
+public class ProductionItem implements Comparable<ProductionItem>{
     public static final String DELIMITER = "•";     //分割符
     private final Production production;            //项目的产生式
     private final int delimiterPos;                 //分隔符的位置
@@ -31,6 +31,7 @@ public class ProductionItem {
     public static ProductionItem create(Production production, Symbol expect, int delimiterPos){
         List<Symbol> rightList = production.getRight();
         StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(production.getLeft().getContent()).append("->");
         //将分隔符插入到项目的字符串中
         for(int i = 0; i < rightList.size(); ++i){
             Symbol symbol = rightList.get(i);
@@ -105,6 +106,11 @@ public class ProductionItem {
 
     public String getContent() {
         return content;
+    }
+
+    @Override
+    public int compareTo(ProductionItem productionItem){
+        return content.compareTo(productionItem.content);
     }
 
     @Override

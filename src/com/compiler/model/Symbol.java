@@ -16,6 +16,9 @@ public class Symbol {
         if(content.compareTo("a") >= 0 && content.compareTo("z") <= 0){
             return true;        //终结符
         }
+        if(content.equals("#"))
+            //#是终结符
+            return true;
         return false;       //非终结符
     }
 

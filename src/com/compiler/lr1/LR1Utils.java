@@ -17,6 +17,7 @@ public class LR1Utils {
      * */
     public static Set<ProductionItem> closure(Set<ProductionItem> itemSet, Grammar grammar){
         Set<ProductionItem> resultItems = new HashSet<>();      //结果项目集
+        resultItems.addAll(itemSet);        //先添加原项目
         Stack<ProductionItem> stack = new Stack<>();            //用于判断项目集是否不再增大
         stack.addAll(itemSet);      //栈初始化
         while(!stack.isEmpty()){
@@ -37,6 +38,7 @@ public class LR1Utils {
                 //获取FIRST(βa)
                 Set<Symbol> firstSet = grammar.getFirstSetBySymbols(firstSymbols).getSet();
                 //根据First集合，生成项目集中新增的项目
+                //FIXME:对于含空串的产生式，这里将发生空指针错误
                 for (Production production : productionList){
                     for(Symbol symbol : firstSet){
                         ProductionItem currentItem = ProductionItem.create(production,symbol);
@@ -166,8 +168,24 @@ public class LR1Utils {
                 Production.create("S","bed"),
                 Production.create("A","e")
         );
+//        Grammar grammar = Grammar.creat(start,
+//                Production.create(start,"S"),
+//                Production.create("S","AB"),
+//                Production.create("S","bC"),
+//                Production.create("A","ε"),
+//                Production.create("A","b"),
+//                Production.create("B","ε"),
+//                Production.create("B","aD"),
+//                Production.create("C","AD"),
+//                Production.create("C","b"),
+//                Production.create("D","aS"),
+//                Production.create("D","c")
+//        );
         LinkedHashMap<Symbol,List<Production>> map = grammar.getProductionMap();
-        grammar.getFirstSetMap();
+        List<ProductionItemSet> productionItemSetList = generateProductionItemSets(grammar);
         System.out.println(grammar);
+        for(ProductionItemSet productionItemSet : productionItemSetList){
+            System.out.println(productionItemSet);
+        }
     }
 }

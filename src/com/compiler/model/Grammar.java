@@ -200,7 +200,7 @@ public class Grammar {
     public FirstSet getFirstSetBySymbols(List<Symbol> symbols){
         //求解所有非终结符对应的First集
         Map<Symbol,FirstSet> firstSetMap = getFirstSetMap();
-        //FIXME
+        //FIXME 由于Symbol类的限制，这里实际只传了一个Symbol进去，而不是整个列表，可能导致最后结果错误
         FirstSet firstSet = new FirstSet(symbols);
         boolean isAllEpsilon = true;    //产生式中的所有元素是都包含空
         for(Symbol symbol : symbols){
@@ -212,6 +212,8 @@ public class Grammar {
             }
             //非终结符则查找map
             FirstSet current = firstSetMap.get(symbol);
+            if(current == null)
+                continue;
             firstSet.add(current.getSet());
             //如果当前非终结的First集包含空串，则需要遍历下一个，否则直接得出结果
             if(!current.isHasEpsilon()){

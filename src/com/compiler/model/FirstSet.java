@@ -67,6 +67,7 @@ public class FirstSet {
             stringBuilder.append(symbol.getContent()).append("|");
         }
         if(isHasEpsilon())
+            //FIXME:“ε”符号的显示存在问题
             stringBuilder.append(Symbol.EPSILON);
         stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         return stringBuilder.toString();
