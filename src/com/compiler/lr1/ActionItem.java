@@ -62,7 +62,7 @@ public class ActionItem {
     @Override
     public String toString(){
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("ActionItem{");
+        //stringBuilder.append("ActionItem{");
         switch(actionType){
             case ACTION_S:
                 stringBuilder.append(ACTION_S).append(productionItemSet.getIndex());
@@ -74,7 +74,7 @@ public class ActionItem {
                 stringBuilder.append(ACTION_ACC);
                 break;
         }
-        stringBuilder.append("}");
+        //stringBuilder.append("}");
         return stringBuilder.toString();
     }
 }
