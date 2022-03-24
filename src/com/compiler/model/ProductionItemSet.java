@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * 项目集
  * */
-public class ProductionItemSet {
+public class ProductionItemSet implements Comparable<ProductionItemSet>{
     //所有项目集的集合，以项目集转换为字符串的内容为键
     public static final HashMap<String, ProductionItemSet> itemSets = new HashMap<>();
     private static int total = 0;                               //项目集总数
@@ -72,6 +72,13 @@ public class ProductionItemSet {
         //根据content判断是否相等
         ProductionItemSet productionItemSet = (ProductionItemSet) obj;
         return Objects.equals(content,productionItemSet.content);
+    }
+
+    @Override
+    public int compareTo(ProductionItemSet obj){
+        Integer a = this.index;
+        Integer b = obj.index;
+        return a.compareTo(b);
     }
 
     @Override
