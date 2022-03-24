@@ -57,6 +57,9 @@ public class LR1Utils {
     }
 
     //GOTO函数的缓存，避免重复计算
+    /**
+     * 原ProductionItemSet + Symbol = 现ProductionItemSet
+     * */
     public static final Map<ProductionItemSet,Map<Symbol,ProductionItemSet>> GOTO_MAP = new HashMap<>();
     /**
      * 项目集的转换函数GOTO
@@ -148,44 +151,134 @@ public class LR1Utils {
         return resultItemSets;
     }
 
-    public static void main(String[] args){
-        //创建文法符号
-        Symbol start = new Symbol("S'");
-        //创建语法
-        /*
-        * S'-> S
-        * S -> aAd
-        * S -> bAc
-        * S -> aec
-        * S -> bed
-        * A -> e
-        * */
-        Grammar grammar = Grammar.creat(start,
-                Production.create(start,"S"),
-                Production.create("S","aAd"),
-                Production.create("S","bAc"),
-                Production.create("S","aec"),
-                Production.create("S","bed"),
-                Production.create("A","e")
-        );
-//        Grammar grammar = Grammar.creat(start,
-//                Production.create(start,"S"),
-//                Production.create("S","AB"),
-//                Production.create("S","bC"),
-//                Production.create("A","ε"),
-//                Production.create("A","b"),
-//                Production.create("B","ε"),
-//                Production.create("B","aD"),
-//                Production.create("C","AD"),
-//                Production.create("C","b"),
-//                Production.create("D","aS"),
-//                Production.create("D","c")
-//        );
-        LinkedHashMap<Symbol,List<Production>> map = grammar.getProductionMap();
-        List<ProductionItemSet> productionItemSetList = generateProductionItemSets(grammar);
-        System.out.println(grammar);
-        for(ProductionItemSet productionItemSet : productionItemSetList){
-            System.out.println(productionItemSet);
+    /**
+     * 得到Action表和Goto表
+     * @param grammar       in   语法
+     * @param productionItemSetList in  项目集
+     * @param actionTable   out  action表
+     * @param gotoTable     out  goto表
+     */
+    public static void createLR1Table(Grammar grammar,List<ProductionItemSet> productionItemSetList,
+                                      Map<ProductionItemSet, Map<Symbol,ActionItem>> actionTable,
+                                      Map<ProductionItemSet, Map<Symbol,GotoItem>> gotoTable){
+        //获取语法的开始符号
+        Symbol start = grammar.getStart();
+        //遍历文法的所有项目集
+        //Collections.sort(productionItemSetList);
+        for(ProductionItemSet itemSet : productionItemSetList){
+            //遍历项目集中的项目
+            for(ProductionItem item : itemSet.getProductionItemSet()){
+                //获得当前项目的符号
+                Symbol currentSymbol;
+                {
+                    int position = item.getDelimiterPos();
+                    List<Symbol> right = item.getProduction().getRight();
+                    int length = right.size();
+                    if(position < length)
+                        currentSymbol = right.get(position);
+                    else currentSymbol = Symbol.END;
+                }
+                //非终结符，则加入到GOTO表中
+                if(!currentSymbol.isVt()){
+                    ProductionItemSet productionItemSet = Goto(itemSet,currentSymbol,grammar);
+                    if (productionItemSet != null) {
+                        GotoItem gotoItem = new GotoItem(productionItemSet);
+                        //TODO:增加冲突处理
+                        addToDoubleMap(gotoTable,itemSet,currentSymbol,gotoItem);
+                    }
+                }
+                else {
+                    //如果是终结符且是结束符号
+                    if(Symbol.END.equals(currentSymbol)){
+                        //项目为A->b•,a的形式，则进行归约操作
+                        Production production = item.getProduction();
+                        if(start.equals(production.getLeft())){
+                            //如果该产生式是S'->S•,#，则为ACC
+                            ActionItem actionItem = ActionItem.createActionACC();
+                            //TODO:增加冲突处理
+                            addToDoubleMap(actionTable,itemSet,currentSymbol,actionItem);
+                        }
+                        else {
+                            //根据展望符进行归约操作
+                            ActionItem actionItem = ActionItem.createActionR(production);
+                            //TODO:增加冲突处理
+                            addToDoubleMap(actionTable,itemSet,item.getExpect(),actionItem);
+                        }
+                    }
+                    else{
+                        //如果是终结符但不是结束符号，则进行移进操作
+                        ActionItem actionItem = ActionItem.createActionS(Goto(itemSet,currentSymbol,grammar));
+                        //TODO:增加冲突处理
+                        addToDoubleMap(actionTable,itemSet,currentSymbol,actionItem);
+                    }
+                }
+            }
+        }
+        //打印LR1分析表
+        printLR1Table(productionItemSetList,grammar,actionTable,gotoTable);
+    }
+
+    /**
+     * 打印LR(1)分析表
+     * @param
+     * */
+    private static void printLR1Table(List<ProductionItemSet> productionItemSetList, Grammar grammar,
+                                      Map<ProductionItemSet,Map<Symbol,ActionItem>> actionMap,
+                                      Map<ProductionItemSet,Map<Symbol,GotoItem>> gotoMap){
+        //打印Action表头
+        System.out.println("LR(1)------------ACTION:");
+        System.out.print("state\t");
+        //所有终结符
+        for(Symbol symbol : grammar.getVtSet()){
+            System.out.print(symbol.getContent() + "\t");
+        }
+        System.out.print(Symbol.END.getContent() + "\t");
+        System.out.println();
+        for(ProductionItemSet itemSet : productionItemSetList){
+            System.out.print(itemSet.getIndex() + "\t\t");
+            //根据项目集获得action表
+            Map<Symbol,ActionItem> map = actionMap.get(itemSet);
+            //查找每个终结符
+            for(Symbol symbol : grammar.getVtSet()){
+                ActionItem actionItem = map.get(symbol);
+                if(actionItem != null){
+                    System.out.print(actionItem);
+                }
+                System.out.print("\t");
+            }
+            //作为终结符的#号
+            ActionItem actionItem = map.get(Symbol.END);
+            if(actionItem != null){
+                System.out.print(actionItem);
+            }
+            System.out.print("\t");
+            System.out.println();
+        }
+        //打印GOTO表表头
+        System.out.println("LR(1)------------GOTO:");
+        System.out.print("state\t");
+        //对于所有非终结符
+        for(Symbol symbol : grammar.getVnSet()){
+            //跳过增广文法的S'
+            if(symbol.equals(grammar.getStart()))
+                continue;
+            System.out.print(symbol.getContent() + "\t");
+        }
+        System.out.println();
+        for(ProductionItemSet itemSet : productionItemSetList){
+            System.out.print(itemSet.getIndex() + "\t\t");
+            Map<Symbol,GotoItem> map = gotoMap.get(itemSet);
+            for(Symbol symbol : grammar.getVnSet()){
+                //跳过增广文法的S'
+                if(map == null || symbol.equals(grammar.getStart()))
+                    continue;
+                GotoItem gotoItem = map.get(symbol);
+                if(gotoItem != null){
+                    System.out.print(gotoItem.getNumber());
+                }
+                System.out.print("\t");
+            }
+            System.out.println();
         }
     }
 }
