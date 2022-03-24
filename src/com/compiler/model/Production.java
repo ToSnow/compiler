@@ -10,6 +10,8 @@ public class Production {
     private final Symbol left;          //产生式左部
     private final List<Symbol> right;   //产生式右部
     private final boolean isEpsilon;    //是否是空
+    public static int count = 0;       //产生式计数器
+    private final int index;            //产生式序号
 
     public Production(Symbol left, List<Symbol> right) {
         this.left = left;
@@ -18,6 +20,7 @@ public class Production {
             isEpsilon = true;
         else
             isEpsilon = false;
+        index = count++;
     }
 
     /**
@@ -68,10 +71,15 @@ public class Production {
         return right;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append("Production{").append(left.getContent()).append("->");
+        string.append("Production").append(index).append("{").append(left.getContent()).
+                append("->");
         for(Symbol symbol : right){
             string.append(symbol.getContent());
         }
