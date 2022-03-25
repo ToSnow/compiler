@@ -2,6 +2,7 @@ package com.compiler.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 文法的项目
@@ -106,6 +107,22 @@ public class ProductionItem implements Comparable<ProductionItem>{
 
     public String getContent() {
         return content;
+    }
+
+    /**
+     * 根据content值比较是否相等，而不是直接比较对象
+     * */
+    @Override
+    public boolean equals(Object obj){
+        if(obj == null || getClass() != obj.getClass()) return false;
+        if(this == obj) return true;
+        ProductionItem productionItem = (ProductionItem) obj;
+        return content.equals(((ProductionItem) obj).content);
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hashCode(content);
     }
 
     @Override
