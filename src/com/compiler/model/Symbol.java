@@ -1,5 +1,7 @@
 package com.compiler.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -13,13 +15,10 @@ public class Symbol {
     private final boolean isVt;      //是否是终结符
 
     public boolean isVt(String content){
-        if(content.compareTo("a") >= 0 && content.compareTo("z") <= 0){
-            return true;        //终结符
+        if(content.compareTo("A") >= 0 && content.compareTo("Z") <= 0){
+            return false;        //非终结符
         }
-        if(content.equals("#"))
-            //#是终结符
-            return true;
-        return false;       //非终结符
+        return true;       //终结符
     }
 
     public Symbol(String content, boolean isEnd) {
@@ -32,6 +31,19 @@ public class Symbol {
         this.content = content;
         this.isEnd = false;
         this.isVt = isVt(content);
+    }
+
+    /**
+     * 根据字符串快速的创建Symbol的列表
+     *
+     * */
+    public static List<Symbol> createSymbolsByString(String str){
+        List<Symbol> symbols = new ArrayList<>();
+        int length = str.length();
+        for(int i = 0; i < length; ++i){
+            symbols.add(new Symbol(String.valueOf(str.charAt(i))));
+        }
+        return symbols;
     }
 
     public static String getEPSILON() {
