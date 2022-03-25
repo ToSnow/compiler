@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * 项目集
  * */
-public class ProductionItemSet implements Comparable<ProductionItemSet>{
+public class ProductionItemSet implements Comparable<ProductionItemSet>, Cloneable{
     //所有项目集的集合，以项目集转换为字符串的内容为键
     public static final HashMap<String, ProductionItemSet> itemSets = new HashMap<>();
     private static int total = 0;                               //项目集总数
@@ -79,6 +79,17 @@ public class ProductionItemSet implements Comparable<ProductionItemSet>{
         Integer a = this.index;
         Integer b = obj.index;
         return a.compareTo(b);
+    }
+
+    @Override
+    protected ProductionItemSet clone() throws CloneNotSupportedException {
+        try {
+            ProductionItemSet obj = (ProductionItemSet) super.clone();
+            return obj;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override

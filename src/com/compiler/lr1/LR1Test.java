@@ -24,14 +24,14 @@ public class LR1Test {
          * S -> bed
          * A -> e
          * */
-        Grammar grammar = Grammar.creat(start,
-                Production.create(start,"S"),
-                Production.create("S","aAd"),
-                Production.create("S","bAc"),
-                Production.create("S","aec"),
-                Production.create("S","bed"),
-                Production.create("A","e")
-        );
+//        Grammar grammar = Grammar.creat(start,
+//                Production.create(start,"S"),
+//                Production.create("S","aAd"),
+//                Production.create("S","bAc"),
+//                Production.create("S","aec"),
+//                Production.create("S","bed"),
+//                Production.create("A","e")
+//        );
 //        Grammar grammar = Grammar.creat(start,
 //                Production.create(start,"S"),
 //                Production.create("S","AB"),
@@ -59,8 +59,20 @@ public class LR1Test {
 //                Production.create("L","i"),
 //                Production.create("R","L")
 //        );
+        Grammar grammar = Grammar.creat(start,
+                Production.create(start,"E"),
+                Production.create("E","E+T"),
+                Production.create("E","E-T"),
+                Production.create("E","T"),
+                Production.create("T","T*F"),
+                Production.create("T","T/F"),
+                Production.create("T","F"),
+                Production.create("F","(E)"),
+                Production.create("F","i")
+        );
         LinkedHashMap<Symbol, List<Production>> map = grammar.getProductionMap();
         //输出产生式
+        System.out.println("产生式列表：");
         for(Map.Entry<Symbol,List<Production>> m : map.entrySet()){
             List<Production> productionList = m.getValue();
             for(Production production : productionList){
@@ -68,6 +80,7 @@ public class LR1Test {
             }
         }
         List<ProductionItemSet> productionItemSetList = LR1Utils.generateProductionItemSets(grammar);
+        System.out.println("文法：");
         System.out.println(grammar);
         for(ProductionItemSet productionItemSet : productionItemSetList){
             System.out.println(productionItemSet);
@@ -77,5 +90,7 @@ public class LR1Test {
         Map<ProductionItemSet,Map<Symbol,GotoItem>> gotoMap = new HashMap<>();
         System.out.println("LR(1)分析表：");
         LR1Utils.createLR1Table(grammar,productionItemSetList,actionMap,gotoMap);
+        System.out.println("LR(1)分析过程");
+        LR1Utils.match(Symbol.createSymbolsByString("((((((i+i)*i)))))-(i/i)-(i+i*i)+i*i"),productionItemSetList.get(0),actionMap,gotoMap);
     }
 }

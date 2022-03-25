@@ -220,7 +220,10 @@ public class LR1Utils {
 
     /**
      * 打印LR(1)分析表
-     * @param
+     * @param productionItemSetList 项目集
+     * @param grammar               语法
+     * @param actionMap             action表
+     * @param gotoMap               goto表
      * */
     private static void printLR1Table(List<ProductionItemSet> productionItemSetList, Grammar grammar,
                                       Map<ProductionItemSet,Map<Symbol,ActionItem>> actionMap,
@@ -280,5 +283,150 @@ public class LR1Utils {
             }
             System.out.println();
         }
+    }
+
+    /**
+     * 根据生成的Action表和Goto表对输入的符号串进行匹配
+     * @param inputSymbols      待匹配的符号串
+     * @param startItemSet      开始项目集
+     * @param actionMap         Action表
+     * @param gotoMap           Goto表
+     * @return                  是否匹配成功
+     * */
+    public static boolean match(List<Symbol> inputSymbols,ProductionItemSet startItemSet,
+                                Map<ProductionItemSet,Map<Symbol,ActionItem>> actionMap,
+                                Map<ProductionItemSet,Map<Symbol,GotoItem>> gotoMap){
+        inputSymbols.add(Symbol.END);
+        //状态栈
+        Stack<ProductionItemSet> stateStack = new Stack<>();
+        //符号栈
+        Stack<Symbol> symbolStack = new Stack<>();
+        //放入开始状态
+        stateStack.push(startItemSet);
+        //放入结束符号#
+        symbolStack.push(Symbol.END);
+        int currentSymbolPosition = 0;  //输入符号串目前读取到的位置
+        while(true){
+            //获取状态栈栈顶元素
+            if(stateStack.isEmpty()){
+                System.out.println("匹配错误：状态栈为空！");
+                return false;
+            }
+            ProductionItemSet currentItemSet = stateStack.peek();
+            //获取当前待匹配的输入元素
+            if(currentSymbolPosition >= inputSymbols.size()){
+                System.out.println("匹配错误：输入串为空！");
+                return false;
+            }
+            Symbol currentSymbol = inputSymbols.get(currentSymbolPosition);
+            //根据栈顶元素和待匹配的输入元素获取对应的action
+            ActionItem actionItem = actionMap.get(currentItemSet).get(currentSymbol);
+            GotoItem gotoItem = null;
+            if(actionItem == null){
+                System.out.println("匹配" + currentSymbol.getContent() + "时出错：未找到与栈顶项目集、栈顶输入元素匹配的Action操作！");
+                return false;
+            }
+            else if(actionItem.getActionType().equals(ActionItem.ACTION_ACC)){
+                //如果是ACC
+                //只有当输入字符串匹配到最后一个字符#时，才算匹配成功
+                if(currentSymbol.equals(Symbol.END)) {
+                    printMatch(inputSymbols,stateStack,currentSymbolPosition,actionItem,gotoItem);
+                    System.out.println("分析成功！");
+                    return true;
+                }
+                else{
+                    //匹配失败
+                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：在输入串不为空时匹配了ACC！");
+                    return false;
+                }
+            }
+            else if(actionItem.getActionType().equals(ActionItem.ACTION_S)){
+                //移进操作
+                stateStack.push(actionItem.getProductionItemSet());     //向状态栈中添加新项目集
+                symbolStack.push(currentSymbol);    //向符号栈中添加当前符号
+                currentSymbolPosition++;    //匹配下一个输入符号
+            }
+            else if(actionItem.getActionType().equals(ActionItem.ACTION_R)){
+                //归约操作
+                Production currentProduction = actionItem.getProduction();  //获取归约用的产生式
+                //根据产生式右部的符号数目，弹出对应数目的状态栈和符号栈
+                int length = currentProduction.getRight().size();
+                if(stateStack.size() < length || symbolStack.size() - 1 < length){
+                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——符号栈/状态栈元素数量小于归约用的产生式右部的长度！");
+                    return false;
+                }
+                for(int i = 0; i < currentProduction.getRight().size(); ++i){
+                    stateStack.pop();
+                    symbolStack.pop();
+                }
+                //将产生式左部添加到符号栈
+                symbolStack.push(currentProduction.getLeft());
+                //获取这个字符在gotoMap中对应的状态，添加到状态栈
+               gotoItem = gotoMap.get(stateStack.peek()).get(currentProduction.getLeft());
+                if(gotoItem == null){
+                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——对应的goto表项为空！");
+                    return false;
+                }
+                ProductionItemSet nextItemSet = gotoItem.getNextProductionItemSet();
+                stateStack.push(nextItemSet);
+            }
+            //复制栈,Java对自定义对象是引用传递
+            Stack<ProductionItemSet> tmpStack = (Stack<ProductionItemSet>) stateStack.clone();
+            printMatch(inputSymbols,tmpStack,currentSymbolPosition,actionItem,gotoItem);
+        }
+    }
+
+    private static int index = 1;       //当前是第几步
+    /**
+     * 输出LR(1)的分析过程
+     * index=1, state={0}, symbol={#}, input={bccd#}, action=S3, goto=null;
+     * @param symbolList                符号串
+     * @param currentSymbolPosition     当前匹配到的符号的位置
+     * @param stateStack                状态栈
+     * @param actionItem                action对象
+     * @param gotoItem                  goto对象
+     * */
+    private static void printMatch(List<Symbol> symbolList,Stack<ProductionItemSet> stateStack,
+                                   int currentSymbolPosition,ActionItem actionItem,GotoItem gotoItem){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("index=").append(index).append(",\t");
+        index++;
+        //从状态栈中提取状态
+        Stack<Integer> state = new Stack<>();
+        while(!stateStack.isEmpty()){
+            ProductionItemSet productionItemSet = stateStack.pop();
+            state.push(productionItemSet.getIndex());
+        }
+        //输出状态栈
+        stringBuilder.append("state={");
+        while(!state.isEmpty()){
+            stringBuilder.append(state.pop()).append(",");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        stringBuilder.append("},\t");
+        //输出符号栈
+        stringBuilder.append("symbol={#");
+        int i = 0;
+        for(; i < currentSymbolPosition; ++i){
+            stringBuilder.append(symbolList.get(i).getContent());
+        }
+        stringBuilder.append("},\t");
+        //输出输入串
+        stringBuilder.append("input={");
+        for(; i < symbolList.size(); ++i){
+            stringBuilder.append(symbolList.get(i).getContent());
+        }
+        stringBuilder.append("}\t");
+        //输出Action
+        stringBuilder.append("action=").append(actionItem).append(",\t");
+        //输出Goto
+        stringBuilder.append("goto=");
+        //判断是否需要输出
+        if(actionItem.getActionType().equals(ActionItem.ACTION_R)){
+            stringBuilder.append(gotoItem.getNumber());
+        }else{
+            stringBuilder.append("null");
+        }
+        System.out.println(stringBuilder.toString());
     }
 }
