@@ -4,16 +4,16 @@ import com.compiler.model.Production;
 import com.compiler.model.Symbol;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ParserUtils {
     public final static List<Production> productionList = new ArrayList<>();      //产生式列表
     public final static Map<Symbol,NFAState> nfaStateMap = new HashMap<>();     //当前非终结符对应的NFA结点
+    public final static Set<Symbol> vtSet = new HashSet<>();
+    public final static Set<Symbol> vnSet = new HashSet<>();
+    public static NFAState startNFA;        //NFA的开始结点
     /**
-     * 读取正规文法，最后得到List<Production>的列表
+     * 读取正规文法，最后得到List<Production>的列表，并得到终结符和非终结符的列表
      * @param filePath  正规文法的路径
      * */
     public static void readParseTXT(String filePath){
@@ -51,8 +51,12 @@ public class ParserUtils {
                         Symbol vnSymbol = new Symbol(vnString.toString());
                         List<Symbol> symbolList = new ArrayList<>();
                         symbolList.add(vtSymbol);
-                        if(vnString.length() != 0)
+                        vtSet.add(vtSymbol);
+                        vnSet.add(startSymbol);
+                        if(vnString.length() != 0) {        //当产生式右侧存在非终结符时
                             symbolList.add(vnSymbol);
+                            vnSet.add(vnSymbol);
+                        }
                         //根据symbol生成产生式
                         Production production = new Production(startSymbol,symbolList);
                         productionList.add(production);
@@ -87,6 +91,7 @@ public class ParserUtils {
         NFAState startNFAState = new NFAState(startSymbol);
         startNFAState.setStart(true);
         nfaStateMap.put(startSymbol,startNFAState);
+        startNFA = startNFAState;
         //创建终态
         NFAState endState = new NFAState(true);
         nfaStateMap.put(new Symbol("END STATE",true),endState);
@@ -122,6 +127,13 @@ public class ParserUtils {
         }
     }
 
+    public static void printNFAState(){
+        System.out.println("--------------NFA State Map----------------");
+        for(Map.Entry<Symbol,NFAState> stateMap : nfaStateMap.entrySet()){
+            System.out.println(stateMap.getValue());
+        }
+    }
+
     public static void main(String[] args){
         String path = "src/com/compiler/parser/parse.txt";
         readParseTXT(path);
@@ -131,5 +143,6 @@ public class ParserUtils {
             System.out.println(production);
         }
         regularGrammarToNFA();
+        printNFAState();
     }
 }
