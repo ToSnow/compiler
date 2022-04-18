@@ -7,10 +7,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class NFAState {
+public class NFAState implements Comparable<NFAState>{
     public static final String EPSILON = "ε";       //空符号
 
-    private Symbol id;
+    private Symbol id;                              //当前NFA对应的符号
     private Map<String, Set<NFAState>> edges;       //NFA转换图
     private boolean isEnd = false;                  //是否是终态
     private boolean isStart = false;                //是否为初态
@@ -23,6 +23,7 @@ public class NFAState {
     NFAState(boolean isEnd){
         isEnd = true;
         id = new Symbol("END STATE", true);
+        edges = new HashMap<>();
     }
 
     /**
@@ -78,12 +79,16 @@ public class NFAState {
     @Override
     public String toString(){
         StringBuffer buffer = new StringBuffer();
-        //FIXME:终态结点调用toString会出现空指针异常
-        buffer.append("NFASate:").append(id.getContent()).append("{");
-        for(Map.Entry<String,Set<NFAState>> edge : edges.entrySet()){
-            Set<NFAState> stateSet = edge.getValue();
-            for(NFAState nfaState : stateSet){
-                buffer.append(edge.getKey()).append("->").append(nfaState.getId().getContent()).append(";");
+        if(!isEnd)
+            buffer.append("NFASate:").append(id.getContent()).append("{");
+        else
+            buffer.append("NFASate:").append("{");
+        if(!isEnd) {
+            for (Map.Entry<String, Set<NFAState>> edge : edges.entrySet()) {
+                Set<NFAState> stateSet = edge.getValue();
+                for (NFAState nfaState : stateSet) {
+                    buffer.append(edge.getKey()).append("->").append(nfaState.getId().getContent()).append(";");
+                }
             }
         }
         buffer.append("}");
@@ -92,5 +97,10 @@ public class NFAState {
         if(isStart)
             buffer.append("START STATE");
         return buffer.toString();
+    }
+
+    @Override
+    public int compareTo(NFAState o) {
+        return id.getContent().compareTo(o.id.getContent());
     }
 }
