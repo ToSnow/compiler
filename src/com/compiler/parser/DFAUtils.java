@@ -73,6 +73,9 @@ public class DFAUtils {
                 Set<NFAState> movedNFASet = move(currentDFA,symbol);
                 //对move后的结果集求空闭包
                 Set<NFAState> closureNFASet = closure(movedNFASet);
+                if(closureNFASet.isEmpty())
+                    //没有结果集则不创建DFA，避免空DFA
+                    continue;
                 //根据求空闭包后的结果创建对应的DFA
                 DFAState dfaState = DFAState.create(closureNFASet);
                 //如果是新的DFA则添加到结果集中
@@ -139,7 +142,7 @@ public class DFAUtils {
     }
 
     public static void main(String[] args){
-        String path = "src/com/compiler/parser/test.txt";
+        String path = "src/com/compiler/parser/parse.txt";
         ParserUtils.readParseTXT(path);
         //生成grammar
         System.out.println("");
