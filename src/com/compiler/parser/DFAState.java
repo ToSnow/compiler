@@ -66,7 +66,13 @@ public class DFAState {
 
     @Override
     public String toString(){
-        return "DFAState{" + key + "}";
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("DFAState{").append(key).append("}");
+        if(isStart)
+            stringBuffer.append("START STATE\t");
+        if(isEnd)
+            stringBuffer.append("END STATE");
+        return stringBuffer.toString();
     }
 
     public Set<NFAState> getNFAStates() {
