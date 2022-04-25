@@ -2,6 +2,7 @@ package com.compiler.parser;
 
 import com.compiler.model.Production;
 import com.compiler.model.Symbol;
+import com.compiler.model.Token;
 
 import java.io.*;
 import java.util.*;
@@ -134,15 +135,198 @@ public class ParserUtils {
         }
     }
 
-    public static void main(String[] args){
-        String path = "src/com/compiler/parser/parse.txt";
-        readParseTXT(path);
-        //生成grammar
+    //存储读取到语句
+    public final static List<String> sentences = new ArrayList<>();
+    /**
+     * 读取用户编写的程序，并存储到sentences中
+     * @param path 用户编写的程序的路径
+     * */
+    public static void readProgramTXT(String path){
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String sentence = "";
+            while(true){
+                if((sentence = bufferedReader.readLine()) != null){
+                    sentences.add(sentence);
+                }
+                else{
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public final static List<Token> tokenList = new ArrayList<>();
+    /**
+     * 根据读取到的用户程序和获得的DFA，进行词法分析
+     * 该词法分析会自动略过//和/*的注释符号
+     * 词法分析的结果将放在tokenList中
+     * @return  词法分析是否出错，false表示出错
+     * */
+    public static Boolean parseProgram(){
+        boolean isLineComment = false;
+        int row = 0;
+        Token token = null;
+        StringBuffer tokenContent = new StringBuffer();
+        DFAState currentDFAState = DFAUtils.startDFA;    //当前匹配的DFA结点
+        for(String sentence : sentences){
+            int index = 0;
+            while(index < sentence.length()){
+                if(!isLineComment){
+                    if(sentence.charAt(index) == '/' &&
+                    index + 1 < sentence.length() && sentence.charAt(index + 1) == '*'){
+                        //添加上一个token
+                        if(token != null && tokenContent.length() != 0){
+                            token.setContent(tokenContent.toString());
+                            tokenList.add(token);
+                            token = null;
+                        }
+                        //行注释开始
+                        isLineComment = true;
+                        index += 2;
+                    }
+                }
+                else {
+                    if(sentence.charAt(index) == '*' &&
+                    index + 1 < sentence.length() && sentence.charAt(index + 1) == '/'){
+                        //行注释结束
+                        isLineComment = false;
+                        index += 2;
+                    }
+                }
+                if(sentence.charAt(index) == '/' &&
+                index + 1 < sentence.length() && sentence.charAt(index + 1) == '/'){
+                    //添加上一个token
+                    if(token != null && tokenContent.length() != 0){
+                        token.setContent(tokenContent.toString());
+                        tokenList.add(token);
+                        token = null;
+                    }
+                    //略过行注释
+                    break;
+                }
+                //只有不处于注释状态时才有效
+                if(!isLineComment){
+                    //当token为空时初始化token
+                    if(token == null || tokenContent.length() == 0){
+                        token = new Token();
+                        tokenContent = new StringBuffer();
+                        //设置为DFA的开始结点
+                        currentDFAState = DFAUtils.startDFA;
+                    }
+                    if(sentence.charAt(index) == ' '){
+                        //略过空格
+                        //空格还同时表示一个字符的结束
+                        if(tokenContent.length() > 0){
+                            //token不为空，则添加token
+                            token.setContent(tokenContent.toString());
+                            tokenList.add(token);
+                            token = null;   //token置空
+                        }
+                    }
+                    else{
+                        if(tokenContent.length() == 0){
+                            //设置当前token的开始行和列
+                            token.setRow(row);
+                            token.setCol(index);
+                        }
+                        //获取下一个可以转换到的DFA结点
+                        boolean hasPath = false;
+                        if(DFAUtils.DFAGraph.containsKey(currentDFAState) &&
+                           DFAUtils.DFAGraph.get(currentDFAState).containsKey(String.valueOf(sentence.charAt(index))))
+                            hasPath = true;
+                        //boolean hasPath = DFAUtils.DFAGraph.get(currentDFAState).containsKey(String.valueOf(sentence.charAt(index)));
+                        if(hasPath){
+                            //如果存在转换路径
+                            DFAState nextDFAState = DFAUtils.DFAGraph.get(currentDFAState).get(String.valueOf(sentence.charAt(index)));
+                            tokenContent.append(sentence.charAt(index));
+                            currentDFAState = nextDFAState;
+                        }
+                        else{
+                            //如果不存在
+                            //判断当前结点是否是终态
+                            if(currentDFAState.getEnd()){
+                                //当前符号读取结束
+                                //添加token
+                                if(tokenContent.length() != 0) {
+                                    token.setContent(tokenContent.toString());
+                                    tokenList.add(token);
+                                    token = null;
+                                }
+                                --index;
+                            }
+                            else{
+                                //非终态但不能转换说明出现了词法分析错误
+                                System.out.println("Parse error at row " + row + ", col " + index + "!");
+                                return false;
+                            }
+                        }
+                    }
+                }
+                ++index;
+            }
+            ++row;
+        }
+        //判断当前结点是否是终态
+        if(currentDFAState.getEnd()){
+            //添加token
+            if(tokenContent.length() != 0) {
+                token.setContent(tokenContent.toString());
+                tokenList.add(token);
+            }
+        }
+        else{
+            //非终态但不能转换说明出现了词法分析错误
+            int index = sentences.get(row).length() - 1;
+            System.out.println("Parse error at row " + row + ", col " + sentences.get(row).charAt(index) + "!");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     *  输出token列表
+     * */
+    public static void printTokenList(){
+        for(Token token : tokenList){
+            System.out.println(token);
+        }
+    }
+
+    /**
+     * 根据输入的正规文法，对用户程序进行分析
+     * @param parsePath   正规文法的路径
+     * @param programPath 用户程序的路径
+     *
+     * */
+    public static void parse(String parsePath, String programPath){
+        //读取正规文法
+        readParseTXT(parsePath);
+        //输出产生式
         System.out.println("");
         for(Production production : productionList){
             System.out.println(production);
         }
+        //正规文法转NFA
         regularGrammarToNFA();
         printNFAState();
+        //NFA转DFA
+        DFAUtils.NFAToDFA(startNFA);
+        DFAUtils.printDFAMap();
+        //读取用户程序
+        readProgramTXT(programPath);
+        if(parseProgram()){
+            printTokenList();
+        }
+    }
+
+    public static void main(String[] args){
+        String parsePath = "src/com/compiler/parser/parse.txt";
+        String programPath = "src/com/compiler/parser/program.txt";
+        parse(parsePath,programPath);
     }
 }
