@@ -261,7 +261,7 @@ public class ParserUtils {
                             }
                             else{
                                 //非终态但不能转换说明出现了词法分析错误
-                                System.out.println("Parse error at row " + row + ", col " + index + "!");
+                                System.out.println("Parse error at row " + (row + 1) + ", col " + (index + 1) + ", char:" + sentence.charAt(index) + "!");
                                 return false;
                             }
                         }
@@ -284,6 +284,10 @@ public class ParserUtils {
             int index = sentences.get(row).length() - 1;
             System.out.println("Parse error at row " + row + ", col " + sentences.get(row).charAt(index) + "!");
             return false;
+        }
+        //生成token对应的type
+        for(Token t : tokenList){
+            t.setType();
         }
         return true;
     }

@@ -1,5 +1,9 @@
 package com.compiler.model;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Token类
  * */
@@ -8,6 +12,19 @@ public class Token {
     private int col;    //token所在的列
     private TokenType type;     //token的类型
     private String content;     //token的内容
+    private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
+            "if", "while", "for", "continue", "break", "return", "do", "goto", "class",
+            "int", "char", "string", "boolean", "long", "float", "double", "auto", "void", "true", "false"
+    ));
+    private static final Set<String> QUALIFIER = new HashSet<>(Arrays.asList(
+            "public", "private", "protected", "final", "static"
+    ));
+    private static final Set<String> OPERATOR = new HashSet<>(Arrays.asList(
+            "+", "-", "*", "/", "!", "~", "^", "|", "||", "&", "&&", "<", ">", "=", "<=", ">=", "==", "++", "--"
+    ));
+    private static final Set<String> SYMBOL = new HashSet<>(Arrays.asList(
+            ",", ";", ".", "[", "]", "{", "}", "(", ")", "\"", "'"
+    ));
 
     public Token() {
     }
@@ -17,6 +34,34 @@ public class Token {
         this.col = col;
         this.type = type;
         this.content = content;
+    }
+
+    public void setType(){
+        this.type = genType();
+    }
+
+    /**
+     * 根据token的content自动设置token的类型
+     * @return 匹配的token类型
+     * */
+    public TokenType genType(){
+        //判断是否为常量
+        if((content.charAt(0) >= '0' && content.charAt(0) <= '9')
+        || (content.charAt(0) == '-' && content.length() >= 2 && content.charAt(1) != '-')
+        || (content.charAt(0) == '.' && content.length() > 1)
+        || (content.charAt(0) == 'e' && content.length() >= 2 && (content.charAt(1) == '+' || content.charAt(1) == '-'))
+        ){
+            return TokenType.CONST;
+        }
+        if(KEYWORDS.contains(content))
+            return TokenType.KEYWORDS;
+        if(QUALIFIER.contains(content))
+            return TokenType.QUALIFIER;
+        if(SYMBOL.contains(content))
+            return TokenType.SYMBOL;
+        if(OPERATOR.contains(content))
+            return TokenType.OPERATOR;
+        return TokenType.IDENTIFIER;
     }
 
     public int getRow() {
@@ -54,10 +99,10 @@ public class Token {
     @Override
     public String toString() {
         return "Token{" +
-                "row=" + row +
-                ", col=" + col +
-                ", type=" + type +
-                ", content='" + content + '\'' +
+                "row=" + (row + 1) +
+                ",\tcol=" + (col + 1) +
+                ",\t\tcontent='" + content + '\'' +
+                ",\t\ttype=" + type +
                 '}';
     }
 }
