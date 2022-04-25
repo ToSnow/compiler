@@ -43,6 +43,7 @@ public class DFAUtils {
     public final static Set<DFAState> DFAStateSet = new HashSet<>();
     //DFA转换图，第一个DFAState用于定位DFA结点，第二个map用于描述DFA结点的转换关系
     public final static Map<DFAState,Map<String,DFAState>> DFAGraph = new HashMap<>();
+    public static DFAState startDFA;
     /**
      * 子集法将NFA转换为DFA
      * 1.对NFA的开始状态求空闭包，得到NFASet
@@ -59,7 +60,7 @@ public class DFAUtils {
     public static void NFAToDFA(NFAState startNFA){
         //得到NFA开始状态对应的空闭包NFA集合
         Set<NFAState> startNFASet = closure(Collections.singleton(startNFA));
-        DFAState startDFA = DFAState.create(startNFASet);       //得到DFA开始结点
+        startDFA = DFAState.create(startNFASet);       //得到DFA开始结点
         Stack<DFAState> dfaStateStack = new Stack<>();
         dfaStateStack.push(startDFA);
         DFAStateSet.add(startDFA);
