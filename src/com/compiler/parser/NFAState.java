@@ -21,7 +21,7 @@ public class NFAState implements Comparable<NFAState>{
     }
 
     NFAState(boolean isEnd){
-        isEnd = true;
+        this.isEnd = true;
         id = new Symbol("END STATE", true);
         edges = new HashMap<>();
     }
