@@ -2,12 +2,81 @@ package com.compiler.lr1;
 
 import com.compiler.model.*;
 
+import java.io.*;
 import java.util.*;
 
 /**
  * LR(1)语法分析的工具类
  * */
 public class LR1Utils {
+
+    /**
+     * 从配置文件中读取三型文法
+     * @param path 三型文法产生式的路径
+     * @return     读取到的产生式列表
+     * */
+    public static List<Production> readProductionTXT(String path){
+        List<Production> productionList = new ArrayList<>();
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String productionContent = "";
+            while(true){
+                try{
+                    if((productionContent = bufferedReader.readLine()) != null){
+                        int length = productionContent.length();
+                        int index = 0;
+                        //读取产生式左部
+                        StringBuffer stringBuffer = new StringBuffer();
+                        while(productionContent.charAt(index) != '-'){
+                            stringBuffer.append(productionContent.charAt(index));
+                            ++index;
+                        }
+                        Symbol left = new Symbol(stringBuffer.toString());
+                        stringBuffer = new StringBuffer();
+                        ++index;
+                        ++index;    //跳过>
+                        //开始读取产生式右部
+                        List<Symbol> rightSymbols = new ArrayList<>();
+                        while(index < length){
+                            if(productionContent.charAt(index) == ' '){
+                                //如果是空格，则证明前一个文法符号读取完了
+                                if(stringBuffer.length() > 0){
+                                    //创建文法符号
+                                    Symbol right = new Symbol(stringBuffer.toString());
+                                    rightSymbols.add(right);
+                                    stringBuffer = new StringBuffer();
+                                }
+                            }
+                            else{
+                                //如果不是空格，则继续读取内容
+                                stringBuffer.append(productionContent.charAt(index));
+                            }
+                            ++index;
+                        }
+                        //处理最后一个文法符号
+                        if(stringBuffer.length() > 0){
+                            //创建文法符号
+                            Symbol right = new Symbol(stringBuffer.toString());
+                            rightSymbols.add(right);
+                        }
+                        //创建产生式
+                        Production production = new Production(left,rightSymbols);
+                        productionList.add(production);
+                    }
+                    else{
+                        break;
+                    }
+                } catch (IOException e){
+                    e.printStackTrace();
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return productionList;
+    }
 
     /**
      * LR(1)项目集的闭包函数
@@ -428,5 +497,32 @@ public class LR1Utils {
             stringBuilder.append("null");
         }
         System.out.println(stringBuilder.toString());
+    }
+
+    /**
+     * 开始LR(1)语法分析
+     * @param tokenList 词法分析得到的tokenList
+     * */
+    public static void startLR1(List<Token> tokenList){
+        List<Production> productionList = readProductionTXT("src/com/compiler/lr1/production.txt");
+        if(productionList.size() > 0){
+            //将产生式集合的第一个产生的左部作为语法的开始符号
+            Symbol startSymbol = productionList.get(0).getLeft();
+            //创建语法
+            Grammar grammar = Grammar.creat(startSymbol,productionList);
+            LinkedHashMap<Symbol, List<Production>> symbolListLinkedHashMap = grammar.getProductionMap();
+            //输出产生式
+            System.out.println("----------------产生式列表：------------------");
+            for(Map.Entry<Symbol,List<Production>> m : symbolListLinkedHashMap.entrySet()){
+              List<Production> temp = m.getValue();
+              for(Production production : temp){
+                  System.out.println(production);
+              }
+           }
+            //System.out.println(grammar);
+        }
+        else{
+            System.out.println("语法分析错误！未读取到任何产生式");
+        }
     }
 }

@@ -167,6 +167,7 @@ public class ParserUtils {
      * 词法分析的结果将放在tokenList中
      * @return  词法分析是否出错，false表示出错
      * */
+    //TODO: 更新正规文法，使其能够将形如"a"的字符串识别为常量
     public static Boolean parseProgram(){
         boolean isLineComment = false;
         int row = 0;
@@ -307,7 +308,7 @@ public class ParserUtils {
      * @param programPath 用户程序的路径
      *
      * */
-    public static void parse(String parsePath, String programPath){
+    public static boolean parse(String parsePath, String programPath){
         //读取正规文法
         readParseTXT(parsePath);
         //输出产生式
@@ -325,7 +326,9 @@ public class ParserUtils {
         readProgramTXT(programPath);
         if(parseProgram()){
             printTokenList();
+            return true;
         }
+        return false;
     }
 
     public static void main(String[] args){
