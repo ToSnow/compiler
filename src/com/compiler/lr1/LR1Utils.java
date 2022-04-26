@@ -22,6 +22,7 @@ public class LR1Utils {
             InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
             String productionContent = "";
+            Production.count = 0;       //计数器设置为0，解决production的id不以0开头的问题
             while(true){
                 try{
                     if((productionContent = bufferedReader.readLine()) != null){
