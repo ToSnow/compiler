@@ -81,7 +81,7 @@ public class Production {
         string.append("Production").append(index).append("{").append(left.getContent()).
                 append("->");
         for(Symbol symbol : right){
-            string.append(symbol.getContent());
+            string.append(symbol.getContent()).append(" ");
         }
         string.append("}");
         return string.toString();
