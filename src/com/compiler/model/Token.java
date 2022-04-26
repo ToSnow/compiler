@@ -14,13 +14,13 @@ public class Token {
     private String content;     //token的内容
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
             "if", "while", "for", "continue", "break", "return", "do", "goto", "class",
-            "int", "char", "string", "boolean", "long", "float", "double", "auto", "void", "true", "false"
+            "int", "char", "short", "string", "boolean", "long", "float", "double", "auto", "void", "true", "false"
     ));
     private static final Set<String> QUALIFIER = new HashSet<>(Arrays.asList(
             "public", "private", "protected", "final", "static"
     ));
     private static final Set<String> OPERATOR = new HashSet<>(Arrays.asList(
-            "+", "-", "*", "/", "!", "~", "^", "|", "||", "&", "&&", "<", ">", "=", "<=", ">=", "==", "++", "--"
+            "+", "-", "*", "/", "!", "~", "^", "|", "||", "&", "&&", "<", ">", "=", "<=", ">=", "==", "++", "--", "%"
     ));
     private static final Set<String> SYMBOL = new HashSet<>(Arrays.asList(
             ",", ";", ".", "[", "]", "{", "}", "(", ")", "\"", "'"
