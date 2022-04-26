@@ -21,7 +21,7 @@ public class Grammar {
      * @param start 文法的开始符号
      * @param productionMap 以Symbol为键的产生式集合
      * */
-    public Grammar(Symbol start,LinkedHashMap<Symbol, List<Production>> productionMap){
+    private Grammar(Symbol start,LinkedHashMap<Symbol, List<Production>> productionMap){
         this.start = start;
         this.productionMap = productionMap;
         //非终结符集合一定是产生式的键值
