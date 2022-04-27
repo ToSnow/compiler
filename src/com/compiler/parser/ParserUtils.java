@@ -221,6 +221,7 @@ public class ParserUtils {
                     }
                     if(sentence.charAt(index) == ' '){
                         //略过空格
+                        //TODO:当目前状态是字符串时不需要略过空格
                         //空格还同时表示一个字符的结束
                         if(tokenContent.length() > 0){
                             //token不为空，则添加token
