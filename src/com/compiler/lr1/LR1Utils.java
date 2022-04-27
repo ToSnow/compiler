@@ -299,7 +299,7 @@ public class LR1Utils {
                                       Map<ProductionItemSet,Map<Symbol,ActionItem>> actionMap,
                                       Map<ProductionItemSet,Map<Symbol,GotoItem>> gotoMap){
         //打印Action表头
-        System.out.println("LR(1)------------ACTION:");
+        System.out.println("LR(1)------------ACTION:------------------------");
         System.out.print("state\t");
         //所有终结符
         for(Symbol symbol : grammar.getVtSet()){
@@ -328,7 +328,7 @@ public class LR1Utils {
             System.out.println();
         }
         //打印GOTO表表头
-        System.out.println("LR(1)------------GOTO:");
+        System.out.println("LR(1)---------------GOTO:----------------------");
         System.out.print("state\t");
         //对于所有非终结符
         for(Symbol symbol : grammar.getVnSet()){
@@ -356,7 +356,7 @@ public class LR1Utils {
     }
 
     /**
-     * 根据生成的Action表和Goto表对输入的符号串进行匹配
+     * 根据生成的Action表和Goto表对输入的符号串进行匹配(使用Symbol进行匹配)
      * @param inputSymbols      待匹配的符号串
      * @param startItemSet      开始项目集
      * @param actionMap         Action表
@@ -446,6 +446,37 @@ public class LR1Utils {
         }
     }
 
+    /**
+     * 根据生成的Action表和Goto表对输入的符号串进行匹配(使用token进行匹配)
+     * @param inputTokens      待匹配的符号串(Token)
+     * @param startItemSet      开始项目集
+     * @param actionMap         Action表
+     * @param gotoMap           Goto表
+     * @return                  是否匹配成功
+     * */
+    public static boolean matchTokenList(List<Token> inputTokens,ProductionItemSet startItemSet,
+                                Map<ProductionItemSet,Map<Symbol,ActionItem>> actionMap,
+                                Map<ProductionItemSet,Map<Symbol,GotoItem>> gotoMap){
+        List<Symbol> inputSymbols = new ArrayList<>();
+        //读取token
+        for(Token token : inputTokens){
+            //如果是id或者常量
+            if(token.getType() == TokenType.IDENTIFIER) {
+                //常量不影响语法分析，直接得出结果
+                inputSymbols.add(new Symbol("id"));
+            }
+            else if(token.getType() == TokenType.CONST){
+                inputSymbols.add(new Symbol("const"));
+            }
+            else{
+                //其它需要提取内容
+                inputSymbols.add(new Symbol(token.getContent(),true,false));
+            }
+        }
+        //inputSymbols.add(Symbol.END);
+        return match(inputSymbols,startItemSet,actionMap,gotoMap);
+    }
+
     private static int index = 1;       //当前是第几步
     /**
      * 输出LR(1)的分析过程
@@ -504,25 +535,36 @@ public class LR1Utils {
      * 开始LR(1)语法分析
      * @param tokenList 词法分析得到的tokenList
      * */
-    public static void startLR1(List<Token> tokenList){
+    public static void startLR1(List<Token> tokenList) {
         List<Production> productionList = readProductionTXT("src/com/compiler/lr1/production.txt");
-        if(productionList.size() > 0){
+        if (productionList.size() > 0) {
             //将产生式集合的第一个产生的左部作为语法的开始符号
             Symbol startSymbol = productionList.get(0).getLeft();
             //创建语法
-            Grammar grammar = Grammar.creat(startSymbol,productionList);
+            Grammar grammar = Grammar.creat(startSymbol, productionList);
             LinkedHashMap<Symbol, List<Production>> symbolListLinkedHashMap = grammar.getProductionMap();
             //输出产生式
             System.out.println("----------------产生式列表：------------------");
-            for(Map.Entry<Symbol,List<Production>> m : symbolListLinkedHashMap.entrySet()){
-              List<Production> temp = m.getValue();
-              for(Production production : temp){
-                  System.out.println(production);
-              }
-           }
-            //System.out.println(grammar);
-        }
-        else{
+            for (Map.Entry<Symbol, List<Production>> m : symbolListLinkedHashMap.entrySet()) {
+                List<Production> temp = m.getValue();
+                for (Production production : temp) {
+                    System.out.println(production);
+                }
+            }
+            List<ProductionItemSet> productionItemSetList = generateProductionItemSets(grammar);
+            System.out.println("----------------文法：------------------");
+            System.out.println(grammar);
+            for (ProductionItemSet productionItemSet : productionItemSetList) {
+                System.out.println(productionItemSet);
+            }
+            //创建LR1分析表
+            Map<ProductionItemSet, Map<Symbol, ActionItem>> actionMap = new HashMap<>();
+            Map<ProductionItemSet, Map<Symbol, GotoItem>> gotoMap = new HashMap<>();
+            System.out.println("--------------------LR(1)分析表：----------------");
+            LR1Utils.createLR1Table(grammar, productionItemSetList, actionMap, gotoMap);
+            System.out.println("LR(1)分析过程");
+            matchTokenList(tokenList,productionItemSetList.get(0),actionMap,gotoMap);
+        } else {
             System.out.println("语法分析错误！未读取到任何产生式");
         }
     }
