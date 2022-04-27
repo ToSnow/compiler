@@ -1,8 +1,10 @@
 S->εOP
 OP->+OP5
 OP->-OP6
-OP->*
-OP->/
+OP->+OP7
+OP->-OP7
+OP->*OP7
+OP->/OP7
 OP->!
 OP->~
 OP->^
@@ -25,6 +27,8 @@ OP5->+
 OP5->ε
 OP6->-
 OP6->ε
+OP7->=
+OP->ε
 S->εVAR
 VAR->aALPHABET
 VAR->bALPHABET
