@@ -48,7 +48,7 @@ public class ParserUtils {
                         }
                         //生成symbol
                         Symbol startSymbol = new Symbol(startString.toString());
-                        Symbol vtSymbol = new Symbol(vtString);
+                        Symbol vtSymbol = new Symbol(vtString,true,false);
                         Symbol vnSymbol = new Symbol(vnString.toString());
                         List<Symbol> symbolList = new ArrayList<>();
                         symbolList.add(vtSymbol);
