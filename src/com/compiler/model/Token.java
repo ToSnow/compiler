@@ -13,7 +13,7 @@ public class Token {
     private TokenType type;     //token的类型
     private String content;     //token的内容
     private static final Set<String> KEYWORDS = new HashSet<>(Arrays.asList(
-            "if", "while", "for", "continue", "break", "return", "do", "goto", "class", "func",
+            "if", "while", "for", "continue", "break", "return", "do", "goto", "class", "func", "abstract",
             "int", "char", "short", "string", "boolean", "long", "float", "double", "auto", "void", "true", "false"
     ));
     private static final Set<String> QUALIFIER = new HashSet<>(Arrays.asList(
