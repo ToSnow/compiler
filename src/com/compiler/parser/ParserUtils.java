@@ -199,6 +199,9 @@ public class ParserUtils {
                         index += 2;
                     }
                 }
+                //避免数组越界
+                if(index >= sentence.length())
+                    break;
                 if(sentence.charAt(index) == '/' &&
                 index + 1 < sentence.length() && sentence.charAt(index + 1) == '/'){
                     //添加上一个token
