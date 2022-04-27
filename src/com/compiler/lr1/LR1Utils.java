@@ -393,6 +393,15 @@ public class LR1Utils {
             ActionItem actionItem = actionMap.get(currentItemSet).get(currentSymbol);
             GotoItem gotoItem = null;
             if(actionItem == null){
+                //尝试移进空进行匹配
+                actionItem = actionMap.get(currentItemSet).get(new Symbol(Symbol.EPSILON));
+                if(actionItem != null){
+                    //使用空能匹配
+                    currentSymbol = new Symbol(Symbol.EPSILON);
+                    --currentSymbolPosition;
+                }
+            }
+            if(actionItem == null){
                 System.out.println("匹配" + currentSymbol.getContent() + "时出错：未找到与栈顶项目集、栈顶输入元素匹配的Action操作！");
                 return false;
             }
