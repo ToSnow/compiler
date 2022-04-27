@@ -27,6 +27,12 @@ public class Symbol {
         this.isVt = isVt(content);
     }
 
+    public Symbol(String content, boolean isVt, boolean isEnd){
+        this.content = content;
+        this.isEnd = isEnd;
+        this.isVt = isVt;
+    }
+
     public Symbol(String content) {
         this.content = content;
         this.isEnd = false;
