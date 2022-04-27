@@ -9,6 +9,7 @@ import java.util.*;
  * LR(1)语法分析的工具类
  * */
 public class LR1Utils {
+    public static List<Token> tokenList = null;
 
     /**
      * 从配置文件中读取三型文法
@@ -402,7 +403,26 @@ public class LR1Utils {
                 }
             }
             if(actionItem == null){
-                System.out.println("匹配" + currentSymbol.getContent() + "时出错：未找到与栈顶项目集、栈顶输入元素匹配的Action操作！");
+                if(tokenList == null) {
+                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：未找到与栈顶项目集、栈顶输入元素匹配的Action操作！");
+                }
+                else{
+                    //输出详细的错误信息
+                    StringBuffer errorInfo = new StringBuffer();
+                    Token errorToken = tokenList.get(currentSymbolPosition);
+                    errorInfo.append("LR1移进出错！\n");
+                    errorInfo.append("错误位置:").append("行:").append(errorToken.getRow() + 1)
+                            .append(", 列:").append(errorToken.getCol() + 1)
+                            .append(", 内容:{'").append(errorToken.getContent());
+                    errorInfo.append("'}, 期望匹配：{");
+                    Map<Symbol,ActionItem> map = actionMap.get(currentItemSet);
+                    for(Map.Entry<Symbol,ActionItem> entry : map.entrySet()){
+                        errorInfo.append("'").append(entry.getKey().getContent()).append("',");
+                    }
+                    errorInfo.deleteCharAt(errorInfo.length() - 1);
+                    errorInfo.append("}");
+                    System.out.println(errorInfo.toString());
+                }
                 return false;
             }
             else if(actionItem.getActionType().equals(ActionItem.ACTION_ACC)){
@@ -415,7 +435,21 @@ public class LR1Utils {
                 }
                 else{
                     //匹配失败
-                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：在输入串不为空时匹配了ACC！");
+                    if(tokenList == null) {
+                        System.out.println("匹配" + currentSymbol.getContent() + "时出错：在输入串不为空时匹配了ACC！");
+                    }
+                    else{
+                        //输出详细的错误信息
+                        StringBuffer errorInfo = new StringBuffer();
+                        Token errorToken = tokenList.get(currentSymbolPosition);
+                        errorInfo.append("LR1 ACC分析出错！\n");
+                        errorInfo.append("错误位置:").append("行:").append(errorToken.getRow() + 1)
+                                .append(", 列:").append(errorToken.getCol() + 1)
+                                .append(", 内容:{'").append(errorToken.getContent());
+                        errorInfo.append("'}");
+                        errorInfo.append("错误原因:在输入串不为空时匹配了ACC!");
+                        System.out.println(errorInfo.toString());
+                    }
                     return false;
                 }
             }
@@ -431,7 +465,22 @@ public class LR1Utils {
                 //根据产生式右部的符号数目，弹出对应数目的状态栈和符号栈
                 int length = currentProduction.getRight().size();
                 if(stateStack.size() < length || symbolStack.size() - 1 < length){
-                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——符号栈/状态栈元素数量小于归约用的产生式右部的长度！");
+                    if(tokenList == null) {
+                        System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——符号栈/状态栈元素数量小于归约用的产生式右部的长度！");
+                    }
+                    else{
+                        //输出详细的错误信息
+                        StringBuffer errorInfo = new StringBuffer();
+                        Token errorToken = tokenList.get(currentSymbolPosition);
+                        errorInfo.append("LR1归约出错！\n");
+                        errorInfo.append("错误位置:").append("行:").append(errorToken.getRow() + 1)
+                                .append(", 列:").append(errorToken.getCol() + 1)
+                                .append(", 内容:{'").append(errorToken.getContent());
+                        errorInfo.append("'}");
+                        errorInfo.append("归约产生式:").append(currentProduction);
+                        errorInfo.append("错误原因:符号栈/状态栈元素数量小于归约用的产生式右部的长度!");
+                        System.out.println(errorInfo.toString());
+                    }
                     return false;
                 }
                 for(int i = 0; i < currentProduction.getRight().size(); ++i){
@@ -443,7 +492,21 @@ public class LR1Utils {
                 //获取这个字符在gotoMap中对应的状态，添加到状态栈
                gotoItem = gotoMap.get(stateStack.peek()).get(currentProduction.getLeft());
                 if(gotoItem == null){
-                    System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——对应的goto表项为空！");
+                    if(tokenList == null) {
+                        System.out.println("匹配" + currentSymbol.getContent() + "时出错：归约异常——对应的goto表项为空！");
+                    }
+                    else{
+                        //输出详细的错误信息
+                        StringBuffer errorInfo = new StringBuffer();
+                        Token errorToken = tokenList.get(currentSymbolPosition);
+                        errorInfo.append("LR1归约出错！\n");
+                        errorInfo.append("错误位置:").append("行:").append(errorToken.getRow() + 1)
+                                .append(", 列:").append(errorToken.getCol() + 1)
+                                .append(", 内容:{'").append(errorToken.getContent());
+                        errorInfo.append("'}");
+                        errorInfo.append("错误原因:对应的goto表项为空！");
+                        System.out.println(errorInfo.toString());
+                    }
                     return false;
                 }
                 ProductionItemSet nextItemSet = gotoItem.getNextProductionItemSet();
@@ -498,6 +561,7 @@ public class LR1Utils {
      * */
     private static void printMatch(List<Symbol> symbolList,Stack<ProductionItemSet> stateStack,
                                    int currentSymbolPosition,ActionItem actionItem,GotoItem gotoItem){
+        currentSymbolPosition = currentSymbolPosition - 1;
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("index=").append(index).append(",\t");
         index++;
@@ -514,19 +578,9 @@ public class LR1Utils {
         }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         stringBuilder.append("},\t");
-        //输出符号栈
-        stringBuilder.append("symbol={#");
-        int i = 0;
-        for(; i < currentSymbolPosition; ++i){
-            stringBuilder.append(symbolList.get(i).getContent());
-        }
-        stringBuilder.append("},\t");
-        //输出输入串
-        stringBuilder.append("input={");
-        for(; i < symbolList.size(); ++i){
-            stringBuilder.append(symbolList.get(i).getContent());
-        }
-        stringBuilder.append("}\t");
+        //输出当前符号
+        stringBuilder.append("currentSymbol='").append(symbolList.get(currentSymbolPosition).getContent()).
+                append("'\t");
         //输出Action
         stringBuilder.append("action=").append(actionItem).append(",\t");
         //输出Goto
@@ -537,6 +591,20 @@ public class LR1Utils {
         }else{
             stringBuilder.append("null");
         }
+        //输出符号栈
+        stringBuilder.append(",\tsymbol={'#'");
+        int i = 0;
+        for(; i < currentSymbolPosition; ++i){
+            stringBuilder.append(",'").append(symbolList.get(i).getContent()).append("'");
+        }
+        stringBuilder.append("},\t");
+        //输出输入串
+        stringBuilder.append("input={");
+        for(; i < symbolList.size(); ++i){
+            stringBuilder.append("'").append(symbolList.get(i).getContent()).append("',");
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        stringBuilder.append("}\t");
         System.out.println(stringBuilder.toString());
     }
 
@@ -545,6 +613,7 @@ public class LR1Utils {
      * @param tokenList 词法分析得到的tokenList
      * */
     public static void startLR1(List<Token> tokenList) {
+        LR1Utils.tokenList = tokenList;
         List<Production> productionList = readProductionTXT("src/com/compiler/lr1/production.txt");
         if (productionList.size() > 0) {
             //将产生式集合的第一个产生的左部作为语法的开始符号
