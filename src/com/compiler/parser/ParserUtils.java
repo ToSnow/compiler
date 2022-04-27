@@ -262,7 +262,22 @@ public class ParserUtils {
                             }
                             else{
                                 //非终态但不能转换说明出现了词法分析错误
-                                System.out.println("Parse error at row " + (row + 1) + ", col " + (index + 1) + ", char:" + sentence.charAt(index) + "!");
+                                StringBuffer errorInfo = new StringBuffer();
+                                errorInfo.append("词法分析出错!\n");
+                                errorInfo.append("出错位置:").append(" 行:").append(row + 1).append(", 列:").append(index + 1)
+                                        .append(", 内容:").append(sentence.charAt(index));
+                                errorInfo.append("\n出错原因:当前状态非终结状态!\n");
+                                errorInfo.append("期望匹配:{");
+                                Map<String, DFAState> path = DFAUtils.DFAGraph.get(currentDFAState);
+                                if(path != null){
+                                    for(Map.Entry<String, DFAState> entry : path.entrySet()){
+                                        errorInfo.append("'").append(entry.getKey()).append("',");
+                                    }
+                                    errorInfo.deleteCharAt(errorInfo.length() - 1);
+                                }
+                                errorInfo.append("}");
+                                System.out.println(errorInfo.toString());
+                                //System.out.println("Parse error at row " + (row + 1) + ", col " + (index + 1) + ", char:" + sentence.charAt(index));
                                 return false;
                             }
                         }
