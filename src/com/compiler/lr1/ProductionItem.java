@@ -1,4 +1,7 @@
-package com.compiler.model;
+package com.compiler.lr1;
+
+import com.compiler.model.Production;
+import com.compiler.model.Symbol;
 
 import java.util.ArrayList;
 import java.util.List;

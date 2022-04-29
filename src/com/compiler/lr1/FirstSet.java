@@ -1,4 +1,6 @@
-package com.compiler.model;
+package com.compiler.lr1;
+
+import com.compiler.model.Symbol;
 
 import java.util.HashSet;
 import java.util.List;

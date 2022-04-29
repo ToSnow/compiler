@@ -1,7 +1,6 @@
 package com.compiler.lr1;
 
 import com.compiler.model.Production;
-import com.compiler.model.ProductionItemSet;
 
 public class ActionItem {
     public static final String ACTION_S = "S";      //移进

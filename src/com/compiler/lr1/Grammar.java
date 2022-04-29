@@ -1,6 +1,8 @@
-package com.compiler.model;
+package com.compiler.lr1;
 
-import java.io.File;
+import com.compiler.model.Production;
+import com.compiler.model.Symbol;
+
 import java.util.*;
 
 /**
@@ -10,8 +12,7 @@ public class Grammar {
     private final Symbol start;         //文法的开始符号
     private final Set<Symbol> VtSet;          //文法中的终结符
     private final Set<Symbol> VnSet;    //文法中的非终结符
-    private Map<Symbol,FirstSet> firstSetMap;   //文法中所有非终结符对应的First集
-    private Map<Symbol,FollowSet> followSetMap; //文法中所有非终结符对应的Follow集
+    private Map<Symbol, FirstSet> firstSetMap;   //文法中所有非终结符对应的First集
     //以symbol为键，记录以symbol开头的产生式
     private final LinkedHashMap<Symbol, List<Production>> productionMap;
 
@@ -236,10 +237,6 @@ public class Grammar {
 
     public Set<Symbol> getVnSet() {
         return VnSet;
-    }
-
-    public Map<Symbol, FollowSet> getFollowSetMap() {
-        return followSetMap;
     }
 
     public LinkedHashMap<Symbol, List<Production>> getProductionMap() {

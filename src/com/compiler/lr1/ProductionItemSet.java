@@ -1,4 +1,4 @@
-package com.compiler.model;
+package com.compiler.lr1;
 
 import java.util.HashMap;
 import java.util.Objects;

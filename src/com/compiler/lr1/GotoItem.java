@@ -1,7 +1,5 @@
 package com.compiler.lr1;
 
-import com.compiler.model.ProductionItemSet;
-
 public class GotoItem {
     private final ProductionItemSet nextProductionItemSet;
     private final int number;       //项目集的序号
