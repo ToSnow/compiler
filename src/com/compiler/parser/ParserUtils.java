@@ -167,7 +167,6 @@ public class ParserUtils {
      * 词法分析的结果将放在tokenList中
      * @return  词法分析是否出错，false表示出错
      * */
-    //TODO: 更新正规文法，使其能够将形如"a"的字符串识别为常量
     public static Boolean parseProgram(){
         boolean isLineComment = false;
         int row = 0;

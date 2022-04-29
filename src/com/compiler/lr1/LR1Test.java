@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LR1Test {
-      //仅测试LR(1)时使用
+    //仅测试LR(1)时使用
 //    public static void main(String[] args){
 //        //创建文法符号
 //        Symbol start = new Symbol("S'");
@@ -43,21 +43,24 @@ public class LR1Test {
 ////                Production.create("D","aS"),
 ////                Production.create("D","c")
 ////        );
-////        Grammar grammar = Grammar.creat(start,
-////                Production.create(start,"S"),
-////                Production.create("S","BB"),
-////                Production.create("B","aB"),
-////                Production.create("B","b")
-////        );
 //        Grammar grammar = Grammar.creat(start,
 //                Production.create(start,"S"),
-//                Production.create("S","LaR"),
-//                Production.create("S","R"),
-//                Production.create("L","bR"),
-//                Production.create("L","i"),
-//                Production.create("L","ic"),
-//                Production.create("R","L")
+//                Production.create("S","AE"),
+//                Production.create("A","BA"),
+//                Production.create("A","ε"),
+//                Production.create("B","a"),
+//                Production.create("B","b"),
+//                Production.create("E","e")
 //        );
+////        Grammar grammar = Grammar.creat(start,
+////                Production.create(start,"S"),
+////                Production.create("S","LaR"),
+////                Production.create("S","R"),
+////                Production.create("L","bR"),
+////                Production.create("L","i"),
+////                Production.create("L","ic"),
+////                Production.create("R","L")
+////        );
 ////        Grammar grammar = Grammar.creat(start,
 ////                Production.create(start,"E"),
 ////                Production.create("E","E+T"),
@@ -90,15 +93,18 @@ public class LR1Test {
 //        System.out.println("LR(1)分析表：");
 //        LR1Utils.createLR1Table(grammar,productionItemSetList,actionMap,gotoMap);
 //        System.out.println("LR(1)分析过程");
-//        LR1Utils.match(Symbol.createSymbolsByString("icabi"),productionItemSetList.get(0),actionMap,gotoMap);
+//        LR1Utils.match(Symbol.createSymbolsByString("e"),productionItemSetList.get(0),actionMap,gotoMap);
 //    }
+
     public static void main(String[] args){
         String parsePath = "src/com/compiler/parser/parse.txt";
         String programPath = "src/com/compiler/parser/program.txt";
         if(ParserUtils.parse(parsePath, programPath)){
             //获取token
             List<Token> tokenList = ParserUtils.tokenList;
-            LR1Utils.startLR1(tokenList);
+            String productionPath = "src/com/compiler/lr1/production.txt";
+            LR1Utils.startLR1(tokenList, productionPath);
         }
     }
+
 }

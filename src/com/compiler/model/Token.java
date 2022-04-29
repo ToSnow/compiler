@@ -51,7 +51,7 @@ public class Token {
         || (content.charAt(0) == '-' && content.length() >= 2 && content.charAt(1) != '-')
         || (content.charAt(0) == '.' && content.length() > 1)
         || (content.charAt(0) == 'e' && content.length() >= 2 && (content.charAt(1) == '+' || content.charAt(1) == '-'))
-        ){
+        || (content.charAt(0) == '"')){
             return TokenType.CONST;
         }
         if(KEYWORDS.contains(content))

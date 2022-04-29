@@ -611,10 +611,11 @@ public class LR1Utils {
     /**
      * 开始LR(1)语法分析
      * @param tokenList 词法分析得到的tokenList
+     * @param productionPath 语法分析的产生式列表
      * */
-    public static void startLR1(List<Token> tokenList) {
+    public static void startLR1(List<Token> tokenList, String productionPath) {
         LR1Utils.tokenList = tokenList;
-        List<Production> productionList = readProductionTXT("src/com/compiler/lr1/production.txt");
+        List<Production> productionList = readProductionTXT(productionPath);
         if (productionList.size() > 0) {
             //将产生式集合的第一个产生的左部作为语法的开始符号
             Symbol startSymbol = productionList.get(0).getLeft();

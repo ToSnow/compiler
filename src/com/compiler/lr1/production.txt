@@ -34,6 +34,7 @@ TYPE->string
 TYPE->float
 TYPE->double
 TYPE->auto
+TYPE->complex
 ARRAY_DEF->ε
 ARRAY_DEF->[ VALUE ]
 CLASS_BODY->ε

@@ -1,16 +1,52 @@
-boolean flag = true;
-public static void main(string[] args){
-    int a = 1;
-    double b = 2.0e+123 * 4;
-    if(flag == true){
-        a++;
+public final boolean flag = true;
+//测试类
+protected abstract class Token{
+    public static final int count = 0;
+    func public void addToken(){
+        ++count;
+        printToken();
+        return;
     }
-    for(int i = 0; i < n; i++){
-        print("233");
+    func private void printToken(){
+        print(count);
+        //void函数可以缺省return语句
     }
-    while(true)//dead loop
-    /**
-        sleep(100);
-    **/++a;
+    //抽象方法
+    func abstract void removeToken(Token token){
+    }
+};
+
+func int add(int a, int b, int c){
+    return a+b+c;       //返回表达式
+}
+/*
+  主函数，程序的入口
+*/
+func public static int main(){
+    int a = 31;
+    int b = 5e+21;      //科学技术法
+    complex num = 5.0+4i;    //复数
+    string str = "Hello,world!";    //字符串
+    print(str);
+    ++a++;
+    int[100] c;   //创建一个大小为5的int数组
+    for(;;){    //无条件for
+        break;
+    }
+    for(;a < 1;){}  //部分条件for
+    int sum = 0;
+    if(flag){       //if语句
+        sum = a + b;
+    }
+    int sum = 0;
+    for(int i = 0; i < 100; ++i){
+        c[i] = i;
+        sum += c[i];
+    }
+    while(true){        //while循环(死循环)
+        continue;
+    }
+    int t = new token();    //自定义类型的变量
+    t.addToken();           //函数调用
     return 0;
 }

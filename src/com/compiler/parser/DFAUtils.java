@@ -51,7 +51,7 @@ public class DFAUtils {
      * 3.DFAState入DFA栈
      * 4.while(DFA栈不空)
      * 5.   获得当前的DFA结点
-     * 6.   for(每个非终结符)
+     * 6.   for(每个终结符)
      * 7.       对DFA结点中的每个NFA结点，求move后的结果
      * 8.       对move后的结果求空闭包
      * 9.       if(DFA结果集中不包含新的DFA)
